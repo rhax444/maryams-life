@@ -2,6 +2,10 @@
 
 *The Little World of Maryam*: a cozy 3D life-simulation game built with React, Vite, Three.js / React Three Fiber, Drei, Tailwind, Framer Motion, Lucide and Howler.js.
 
+**Play it live:** https://maryams-life.vercel.app
+
+Every push to `main` deploys automatically to Vercel.
+
 ## Run it
 
 ```bash
