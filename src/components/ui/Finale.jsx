@@ -67,7 +67,7 @@ function Letter() {
             ))}
           </div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 + n * 0.9 }} className="mt-4 text-right text-2xl text-[#8f74d6]" style={{ fontFamily: 'Caveat, cursive' }}>
-            — your friend 💕
+            — Hamza Ali (Tipu) 💕
           </motion.p>
         </div>
         <AnimatePresence>
