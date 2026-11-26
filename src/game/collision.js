@@ -40,9 +40,10 @@ export function resolveCollisions(pos, radius, colliders, isActive) {
 export function raycastBoxes(o, d, maxDist, colliders, isActive) {
   let best = maxDist
   for (const c of colliders) {
-    // round obstacles (trees, stalls, fountain) are approximated by their bounding box
+    // large round obstacles (flower stall, fountain) are approximated by their bounding box;
+    // thin ones (trees, lamp posts, NPCs) are ignored so the camera never snaps into Maryam's face
     const isBox = c.type === 'box'
-    if (isBox ? c.h < 1.5 : c.h < 1.2) continue
+    if (isBox ? c.h < 1.5 : c.h < 1.2 || c.r < 0.9) continue
     if (c.cond && !isActive(c.cond)) continue
     let tmin = 0, tmax = best
     const mins = isBox ? [c.minX, 0, c.minZ] : [c.x - c.r, 0, c.z - c.r]

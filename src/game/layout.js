@@ -119,7 +119,7 @@ export const COLLIDERS_TOWN = [
   ...BENCHES.map(([x, z]) => box(x - 1, x + 1, z - 0.32, z + 0.32, 0.8)),
   // Shops
   box(31, 37, -22, -16, 5), box(31, 37, -14, -8, 5), box(31, 37, -6, 0, 5),
-  circle(23.2, -10, 1, 1.4), // flower stall
+  circle(23.2, -10, 1, 2.5), // flower stall (full height incl. roof)
   circle(22.6, -20.5, 0.45, 1), // barrel
   // Secret house fence + house
   box(-36, -18, -36.2, -35.8, 1.2),
