@@ -38,7 +38,7 @@ function Letter() {
     return () => clearTimeout(t)
   }, [n])
   return (
-    <motion.div className="absolute inset-0 z-40 flex items-center justify-center px-3 py-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'radial-gradient(ellipse at center, rgba(255,214,230,0.35), rgba(58,42,79,0.55))' }}>
+    <motion.div className="safe-pad absolute inset-0 z-40 flex items-center justify-center px-3 py-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'radial-gradient(ellipse at center, rgba(255,214,230,0.35), rgba(58,42,79,0.55))' }}>
       <FallingHearts />
       <motion.div
         className="relative flex max-h-full w-full max-w-xl flex-col"
@@ -47,7 +47,7 @@ function Letter() {
         transition={{ duration: 1.1, ease: [0.2, 0.9, 0.3, 1.1] }}
         style={{ transformOrigin: 'bottom center' }}
       >
-        <div ref={paper} className="letter-paper scroll-soft relative overflow-y-auto rounded-[28px] border-4 border-white px-6 pb-6 pt-8 shadow-[0_10px_0_rgba(143,116,214,0.3),0_30px_60px_rgba(58,42,79,0.4)] sm:px-10">
+        <div ref={paper} className="letter-paper scroll-soft relative min-h-0 overflow-y-auto rounded-[28px] border-4 border-white px-6 pb-6 pt-8 shadow-[0_10px_0_rgba(143,116,214,0.3),0_30px_60px_rgba(58,42,79,0.4)] sm:px-10">
           <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 grid h-14 w-14 place-items-center rounded-full bg-[#f07aa8] text-2xl shadow-[0_4px_0_#c9567f]">💌</div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }} className="text-3xl font-bold text-[#e5739d]" style={{ fontFamily: 'Caveat, cursive' }}>
             {FINALE.letterGreeting}
@@ -72,7 +72,7 @@ function Letter() {
         </div>
         <AnimatePresence>
           {showEnd && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex flex-col items-center gap-3 text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex shrink-0 flex-col items-center gap-3 text-center">
               <div className="title-text text-xl font-bold sm:text-2xl">{FINALE.theEnd}</div>
               <button onClick={restart} className="game-btn px-8 py-3 text-lg">{FINALE.playAgain}</button>
             </motion.div>
@@ -90,12 +90,13 @@ export default function Finale() {
   const fading = useGame((s) => s.fading)
   const paused = useGame((s) => s.paused)
   const openGift = useGame((s) => s.openGift)
+  const isTouch = useGame((s) => s.isTouch)
   const show = scene === 'secret' && !fading && phase === 'playing' && stage === 'closed' && !paused
   return (
     <>
       <AnimatePresence>
         {show && (
-          <motion.div key="found" className="pointer-events-none absolute inset-x-0 top-[13%] z-20 flex flex-col items-center px-4 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -30 }}>
+          <motion.div key="found" className="pointer-events-none absolute inset-x-0 top-[13%] z-20 flex flex-col items-center px-4 text-center max-sm:top-[calc(var(--sat)+120px)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -30 }}>
             <motion.h2 initial={{ scale: 0.3 }} animate={{ scale: [0.3, 1.15, 1] }} transition={{ duration: 0.9, delay: 0.4 }} className="title-text text-4xl font-bold sm:text-6xl">
               {FINALE.foundTitle}
             </motion.h2>
@@ -107,7 +108,7 @@ export default function Finale() {
       </AnimatePresence>
       <AnimatePresence>
         {show && (
-          <motion.div key="btn" className="absolute inset-x-0 bottom-28 z-20 flex justify-center sm:bottom-16" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.3 }} transition={{ delay: 1.6, type: 'spring' }}>
+          <motion.div key="btn" className={`absolute inset-x-0 bottom-28 z-20 flex justify-center sm:bottom-16 ${isTouch ? 'touch-text-bottom' : ''}`} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.3 }} transition={{ delay: 1.6, type: 'spring' }}>
             <motion.button onClick={openGift} className="game-btn flex items-center gap-2 px-8 py-4 text-xl" animate={{ scale: [1, 1.06, 1] }} transition={{ repeat: Infinity, duration: 1.3 }}>
               <Gift size={24} /> {FINALE.openButton}
             </motion.button>

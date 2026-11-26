@@ -40,10 +40,13 @@ export function resolveCollisions(pos, radius, colliders, isActive) {
 export function raycastBoxes(o, d, maxDist, colliders, isActive) {
   let best = maxDist
   for (const c of colliders) {
-    if (c.type !== 'box' || c.h < 1.5) continue
+    // round obstacles (trees, stalls, fountain) are approximated by their bounding box
+    const isBox = c.type === 'box'
+    if (isBox ? c.h < 1.5 : c.h < 1.2) continue
     if (c.cond && !isActive(c.cond)) continue
     let tmin = 0, tmax = best
-    const mins = [c.minX, 0, c.minZ], maxs = [c.maxX, c.h, c.maxZ]
+    const mins = isBox ? [c.minX, 0, c.minZ] : [c.x - c.r, 0, c.z - c.r]
+    const maxs = isBox ? [c.maxX, c.h, c.maxZ] : [c.x + c.r, c.h, c.z + c.r]
     const os = [o.x, o.y, o.z], ds = [d.x, d.y, d.z]
     let hit = true
     for (let i = 0; i < 3; i++) {

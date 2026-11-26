@@ -6,7 +6,7 @@ import { CAFE, CUSTOMIZE, SHOPS, ACHIEVEMENTS, TUTORIAL, MISC, FRIEND_NAME } fro
 
 const Backdrop = ({ children, onClose, align = 'center' }) => (
   <motion.div
-    className={`absolute inset-0 z-30 flex px-3 py-4 ${align === 'right' ? 'items-center justify-end sm:pr-8' : 'items-center justify-center'} ${align === 'right' ? 'bg-transparent' : 'bg-[#4a3b5c]/30'}`}
+    className={`safe-pad absolute inset-0 z-30 flex px-3 py-4 ${align === 'right' ? 'items-center justify-end sm:pr-8' : 'items-center justify-center'} ${align === 'right' ? 'bg-transparent' : 'bg-[#4a3b5c]/30'}`}
     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     onClick={onClose}
   >
@@ -145,7 +145,7 @@ export function ShopPanel() {
     <AnimatePresence>
       {open && (
         <Backdrop key="shop" align="right" onClose={closePanel}>
-          <Card className="w-full max-w-sm p-5 self-end sm:self-center">
+          <Card className="w-full max-w-sm p-5 self-end sm:self-center max-sm:max-h-[58dvh]">
             <CloseBtn onClick={closePanel} />
             <div className="flex items-center gap-2 text-[#e5739d]"><Shirt size={22} /><h2 className="pr-8 text-xl font-bold">{title}</h2></div>
             <p className="mt-0.5 text-sm text-[#8a7b9a]">{sub}</p>

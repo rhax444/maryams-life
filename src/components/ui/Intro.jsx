@@ -25,18 +25,18 @@ export function IntroScreen() {
   const start = useGame((s) => s.startGame)
   const title = GAME_TITLE.toUpperCase()
   return (
-    <motion.div className="absolute inset-0 z-30 flex flex-col items-center justify-center px-4 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.08, filter: 'blur(6px)' }} transition={{ duration: 0.8 }}>
+    <motion.div className="safe-pad scroll-soft absolute inset-0 z-30 flex flex-col items-center overflow-y-auto overflow-x-hidden px-4 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.08, filter: 'blur(6px)' }} transition={{ duration: 0.8 }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(255,246,233,0.15) 0%, rgba(249,196,217,0.25) 60%, rgba(143,116,214,0.35) 100%)' }} />
       {['💖', '🌸', '✨', '☁️', '🦋', '⭐'].map((e, i) => (
         <motion.span key={i} className="absolute text-3xl sm:text-4xl pointer-events-none" style={{ left: `${8 + i * 16}%`, top: `${i % 2 ? 14 : 78}%` }} {...float(i)}>
           {e}
         </motion.span>
       ))}
-      <motion.div initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 120 }} className="relative">
+      <motion.div initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 120 }} className="relative mt-auto max-w-full">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1 text-sm font-semibold text-[#8f74d6] shadow">
           <Sparkles size={16} /> a cozy life simulation <Sparkles size={16} />
         </div>
-        <h1 className="title-text text-[13vw] sm:text-7xl md:text-8xl font-bold leading-none">{title}</h1>
+        <h1 className="title-text text-[clamp(40px,13vw,64px)] sm:text-7xl md:text-8xl font-bold leading-none">{title}</h1>
         <p className="mt-3 text-xl sm:text-3xl font-semibold text-white drop-shadow-[0_2px_0_#8f74d6]">{GAME_SUBTITLE}</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="game-panel mt-6 max-w-md px-6 py-4">
@@ -56,7 +56,7 @@ export function IntroScreen() {
           {INTRO.startButton}
         </motion.span>
       </motion.button>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.85 }} transition={{ delay: 1.6 }} className="mt-5 flex items-center gap-2 text-sm font-medium text-white drop-shadow-[0_1px_0_#8f74d6]">
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.85 }} transition={{ delay: 1.6 }} className="mb-auto mt-5 flex items-center gap-2 text-sm font-medium text-white drop-shadow-[0_1px_0_#8f74d6]">
         <Headphones size={16} /> Sound on for the full experience
       </motion.p>
     </motion.div>
@@ -68,7 +68,7 @@ export function Tutorial() {
   const isTouch = useGame((s) => s.isTouch)
   const rows = isTouch ? TUTORIAL.mobile : TUTORIAL.desktop
   return (
-    <motion.div className="absolute inset-0 z-30 grid place-items-center bg-[#4a3b5c]/25 px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div className="safe-pad scroll-soft absolute inset-0 z-30 grid place-items-center overflow-y-auto bg-[#4a3b5c]/25 px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <motion.div className="game-panel w-full max-w-md p-6" initial={{ scale: 0.7, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: 'spring', stiffness: 180, damping: 16 }}>
         <div className="mb-1 text-center text-3xl">🎮</div>
         <h2 className="text-center text-2xl font-bold text-[#e5739d]">{TUTORIAL.title}</h2>

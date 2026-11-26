@@ -16,11 +16,32 @@ export default function App() {
   const fading = useGame((s) => s.fading)
   const isTouch = useGame((s) => s.isTouch)
   const togglePause = useGame((s) => s.togglePause)
+  const modalOpen = useGame((s) => !!s.panel || !!s.reveal || s.paused || s.fading)
 
   useEffect(() => attachKeyboard(() => togglePause()), [togglePause])
 
+  // Touch devices: block page scroll / pull-to-refresh / pinch-zoom while playing,
+  // but still let scrollable panels (menus, the letter) scroll.
+  useEffect(() => {
+    if (!isTouch) return
+    const onMove = (e) => {
+      if (e.touches.length > 1) return e.preventDefault()
+      const scroller = e.target.closest?.('.scroll-soft')
+      if (!scroller || scroller.scrollHeight <= scroller.clientHeight) e.preventDefault()
+    }
+    const stop = (e) => e.preventDefault()
+    document.addEventListener('touchmove', onMove, { passive: false })
+    document.addEventListener('gesturestart', stop)
+    document.addEventListener('contextmenu', stop)
+    return () => {
+      document.removeEventListener('touchmove', onMove)
+      document.removeEventListener('gesturestart', stop)
+      document.removeEventListener('contextmenu', stop)
+    }
+  }, [isTouch])
+
   return (
-    <div className="relative w-full h-full overflow-hidden select-none">
+    <div className={`relative w-full h-full overflow-hidden select-none ${isTouch ? 'touch-ui' : ''}`}>
       <GameCanvas onReady={() => setTimeout(() => setReady(true), 400)} />
 
       <AnimatePresence>{phase === 'intro' && ready && <IntroScreen key="intro" />}</AnimatePresence>
@@ -33,7 +54,7 @@ export default function App() {
       <ShopPanel />
       <PauseMenu />
       <Finale />
-      {isTouch && phase === 'playing' && <MobileControls />}
+      {isTouch && phase === 'playing' && !modalOpen && <MobileControls />}
 
       <AnimatePresence>
         {fading && (

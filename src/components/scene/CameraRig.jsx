@@ -21,6 +21,7 @@ function angleDiff(a, b) {
 
 export default function CameraRig() {
   const { camera, gl } = useThree()
+  if (import.meta.env.DEV) window.__camera = camera
   const enter = useRef(null)
   const curDist = useRef(cam.dist)
   const finaleT = useRef(0)
@@ -106,7 +107,9 @@ export default function CameraRig() {
     // --- follow target ---
     const closeup = s.panel === 'shop' || s.panel === 'customize'
     let pitch = cam.pitch, yaw = cam.yaw, dist = cam.dist
-    if (closeup) { yaw = cam.yaw + 0.3; pitch = 0.14; dist = 3.6 }
+    // narrow touch screens show the shop as a bottom sheet: frame Maryam in the top half instead
+    const sheet = closeup && state.size.width <= 640
+    if (closeup) { yaw = cam.yaw + 0.3; pitch = 0.14; dist = sheet ? 4.8 : 3.6 }
     tmpTarget.set(player.x, player.y * 0.6 + (closeup ? 1.0 : 1.3), player.z)
     // close-up: aim right of Maryam so she sits left of the side panel (desktop only)
     if (closeup && state.size.width > 640) tmpTarget.addScaledVector(dir.set(Math.cos(yaw), 0, -Math.sin(yaw)), 0.9)
@@ -148,7 +151,11 @@ export default function CameraRig() {
     }
 
     camera.position.lerp(desired, 1 - Math.exp(-dt * (closeup ? 5 : 18)))
-    lookCur.current.lerp(smoothTarget, 1 - Math.exp(-dt * 18))
+    // bottom-sheet close-up: tilt the view down so Maryam sits in the visible top half
+    lookAtV.copy(smoothTarget)
+    // aim ~24° below horizontal: with a 50° vertical FOV her whole body lands in the top ~40% of the screen
+    if (sheet) lookAtV.y = camera.position.y - curDist.current * Math.cos(pitch) * Math.tan(0.40)
+    lookCur.current.lerp(lookAtV, 1 - Math.exp(-dt * 18))
     camera.lookAt(lookCur.current)
   })
 

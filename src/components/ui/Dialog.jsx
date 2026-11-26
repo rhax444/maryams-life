@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGame } from '../../store/useGame'
 import { HEARTS, KEYS } from '../../config/gameConfig'
@@ -19,9 +19,19 @@ export function DialogBox() {
   const advance = useGame((s) => s.advanceDialog)
   const line = dialog ? dialog.lines[dialog.index] : ''
   const [shown, done, skip] = useTypewriter(line)
+  const isTouch = useGame((s) => s.isTouch)
+  const box = useRef()
   const onClick = () => (done ? advance() : skip())
+  // Publish the dialog's height so toasts can stack above it instead of on top of it
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    if (!dialog || !box.current) { root.style.setProperty('--dialog-h', '0px'); return }
+    const ro = new ResizeObserver(() => root.style.setProperty('--dialog-h', `${box.current?.offsetHeight || 0}px`))
+    ro.observe(box.current)
+    return () => { ro.disconnect(); root.style.setProperty('--dialog-h', '0px') }
+  }, [dialog])
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-4 sm:bottom-8 z-20 flex justify-center px-3">
+    <div className={`pointer-events-none absolute inset-x-0 bottom-4 sm:bottom-8 z-20 flex justify-center px-3 ${isTouch ? 'touch-text-bottom safe-left safe-right' : ''}`}>
       <AnimatePresence>
         {dialog && (
           <motion.div
@@ -30,13 +40,14 @@ export function DialogBox() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 40, opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            ref={box}
             className="pointer-events-auto relative w-full max-w-xl cursor-pointer"
             onClick={onClick}
           >
             <div className="absolute -top-4 left-6 z-10 flex items-center gap-1.5 rounded-full bg-[#8f74d6] px-4 py-1 text-sm font-bold text-white shadow-[0_3px_0_#6a52b0]">
               <span>{dialog.emoji}</span> {dialog.speaker}
             </div>
-            <div className="game-panel relative px-6 pb-5 pt-6">
+            <div className={`game-panel relative px-6 pb-5 pt-6 ${isTouch ? 'max-h-[34dvh] overflow-y-auto scroll-soft !px-5' : ''}`}>
               <p className="min-h-[3.2em] text-[17px] leading-snug text-[#4a3b5c]">{shown}</p>
               <motion.div className="absolute bottom-2 right-4 text-xs font-semibold text-[#b9a7e6]" animate={{ opacity: done ? [0.4, 1, 0.4] : 0 }} transition={{ repeat: Infinity, duration: 1.2 }}>
                 {dialog.index < dialog.lines.length - 1 ? 'next ▸' : 'tap / E ▸'}
@@ -60,9 +71,9 @@ export function RevealModal() {
   return (
     <AnimatePresence>
       {reveal && (
-        <motion.div key={reveal.type + reveal.index} className="absolute inset-0 z-30 grid place-items-center bg-[#4a3b5c]/30 px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close}>
+        <motion.div key={reveal.type + reveal.index} className="safe-pad absolute inset-0 z-30 grid place-items-center bg-[#4a3b5c]/30 px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close}>
           <motion.div
-            className="game-panel relative w-full max-w-sm overflow-hidden px-6 pb-6 pt-4 text-center"
+            className="game-panel scroll-soft relative w-full max-w-sm max-h-full overflow-x-hidden overflow-y-auto px-6 pb-6 pt-4 text-center"
             initial={{ scale: 0.3, rotate: -8 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0.6, opacity: 0 }}

@@ -5,7 +5,8 @@ import {
 } from '../config/gameConfig'
 import { audio } from '../audio/sound'
 import { resetPlayer, playAction, player, cam } from '../game/playerState'
-import { SECRET_SPAWN, SPAWN } from '../game/layout'
+import { SECRET_SPAWN, SPAWN, COLLIDERS_TOWN, COLLIDERS_SECRET } from '../game/layout'
+import { raycastBoxes } from '../game/collision'
 import { clearInput } from '../game/input'
 
 let noteId = 0
@@ -45,7 +46,11 @@ export const useGame = create((set, get) => ({
   musicOn: true,
   muted: false,
   quality: 'high',
-  isTouch: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0),
+  // Touch UI for phones/tablets (coarse pointer). Touchscreen laptops with a mouse keep the desktop UI.
+  isTouch: typeof window !== 'undefined' && (
+    window.matchMedia?.('(pointer: coarse)').matches ||
+    (navigator.maxTouchPoints > 0 && !window.matchMedia?.('(any-pointer: fine)').matches)
+  ),
 
   // ---------- flow ----------
   startGame: () => {
@@ -119,7 +124,23 @@ export const useGame = create((set, get) => ({
   openPanel: (panel, shopTab) => {
     audio.play('pop')
     clearInput()
-    if (panel === 'shop' || panel === 'customize') { player.facing = cam.yaw; playAction('wave', 1) } // pose for the camera
+    if (panel === 'shop' || panel === 'customize') {
+      // pose for the camera: keep the current angle if it's clear, otherwise turn to the nearest clear one
+      const colliders = get().scene === 'town' ? COLLIDERS_TOWN : COLLIDERS_SECRET
+      const active = (c) => (c === 'locked' ? !get().unlocked : true)
+      const o = { x: player.x, y: 1.0, z: player.z }
+      let bestYaw = cam.yaw, bestDist = -1
+      for (const off of [0, 0.5, -0.5, 1, -1, 1.5, -1.5, 2, -2, 2.6, -2.6, Math.PI]) {
+        const y = cam.yaw + off
+        const d = { x: Math.sin(y + 0.3) * Math.cos(0.14), y: Math.sin(0.14), z: Math.cos(y + 0.3) * Math.cos(0.14) } // close-up sits at +0.3
+        const free = raycastBoxes(o, d, 4.5, colliders, active)
+        if (free > bestDist + 0.01) { bestDist = free; bestYaw = y }
+        if (free >= 4.5) break
+      }
+      cam.yaw = bestYaw
+      player.facing = bestYaw
+      playAction('wave', 1)
+    }
     set({ panel, shopTab: shopTab || get().shopTab })
   },
   closePanel: () => { audio.play('click'); set({ panel: null }) },
